@@ -121,33 +121,7 @@
       <span class="mt-1 hidden text-xs text-red-600" id="err-banco">Selecciona tu banco.</span>
     </div>
 
-    <div>
-      <p class="mb-2 text-sm font-semibold">Tipo de cuenta <span class="text-red-600">*</span></p>
-      <div class="flex gap-6">
-        <label class="flex items-center gap-2 cursor-pointer text-sm">
-          <input type="radio" name="tipocuenta" value="ahorros" class="accent-red-600" checked>
-          Cuenta de ahorros
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer text-sm">
-          <input type="radio" name="tipocuenta" value="corriente" class="accent-red-600">
-          Cuenta corriente
-        </label>
-      </div>
-    </div>
-
-    <div>
-      <label for="numcuenta" class="mb-1 block text-sm font-semibold">
-        Número de cuenta <span class="text-red-600">*</span>
-      </label>
-      <input id="numcuenta" name="numcuenta" type="text" inputmode="numeric"
-             placeholder="Solo dígitos, sin guiones ni espacios"
-             minlength="7" maxlength="16" required value="{{numcuenta}}"
-             class="w-full border-b border-gray-400 bg-transparent pb-2 text-sm text-gray-600 placeholder-gray-400 outline-none focus:border-black">
-      <span class="mt-1 text-xs text-gray-400">Entre 7 y 16 dígitos (según tu banco).</span>
-      <span class="mt-1 hidden text-xs text-red-600" id="err-numcuenta">Número de cuenta inválido (7–16 dígitos numéricos).</span>
-    </div>
-
-    <div>
+<div>
       <label for="correo" class="mb-1 block text-sm font-semibold">
         Correo electrónico <span class="text-red-600">*</span>
       </label>
@@ -170,7 +144,7 @@
       </div>
       {{#if otroValor}}
       <div class="flex justify-between">
-        <span class="text-gray-500">Otro valor</span>
+        <span class="text-gray-500">Valor a pagar con descuento hoy</span>
         <span class="font-medium">{{otroValor}}</span>
       </div>
       {{/if}}
@@ -204,11 +178,9 @@
 </main>
 
 <script>
-  // Solo números en documento y cuenta
-  ['numdoc','numcuenta'].forEach(id => {
-    document.getElementById(id).addEventListener('input', function() {
-      this.value = this.value.replace(/[^0-9]/g, '');
-    });
+  // Solo números en documento
+  document.getElementById('numdoc').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
   });
 
   // Correo: sin espacios
@@ -235,12 +207,7 @@
     if (!banco.value) { errBanco.classList.remove('hidden'); ok = false; }
     else { errBanco.classList.add('hidden'); }
 
-    const numcuenta = document.getElementById('numcuenta');
-    const errNumcuenta = document.getElementById('err-numcuenta');
-    if (!/^[0-9]{7,16}$/.test(numcuenta.value)) { errNumcuenta.classList.remove('hidden'); ok = false; }
-    else { errNumcuenta.classList.add('hidden'); }
-
-    const correo = document.getElementById('correo');
+const correo = document.getElementById('correo');
     const errCorreo = document.getElementById('err-correo');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value)) { errCorreo.classList.remove('hidden'); ok = false; }
     else { errCorreo.classList.add('hidden'); }

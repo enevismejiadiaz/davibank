@@ -70,11 +70,11 @@ router.get('/paso3', (req, res) => {
 
 // POST /paso3
 router.post('/paso3', (req, res) => {
-  const { tipopersona, tipodoc, numdoc, banco, tipocuenta,
-          numcuenta, correo, cedula, nombreCliente,
+  const { tipopersona, tipodoc, numdoc, banco,
+          correo, cedula, nombreCliente,
           numProducto, valorPagar, otroValor } = req.body;
 
-  if (!tipodoc || !numdoc || !banco || !numcuenta || !correo) {
+  if (!tipodoc || !numdoc || !banco || !correo) {
     return res.render('paso3', {
       title: 'Portal de pago — Paso 3 de 4',
       paso: 3,
@@ -89,7 +89,7 @@ router.post('/paso3', (req, res) => {
   res.render('confirmacion', {
     title: '¡Pago enviado!',
     nombreCliente, numProducto, valorPagar, otroValor,
-    banco, tipocuenta, correo,
+    banco, correo,
   });
 });
 
