@@ -4,6 +4,13 @@ const express = require('express');
 const router  = express.Router();
 const { buscarPorCedula } = require('../data/loader');
 
+// Formatea un número como moneda colombiana: $1.234.567
+function formatCOP(val) {
+  const n = parseInt(String(val).replace(/[^0-9]/g, ''), 10);
+  if (!val || isNaN(n) || n <= 0) return val || '';
+  return '$' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
 // GET / → Paso 1
 router.get('/', (req, res) => {
   res.render('paso1', { title: 'Portal de pago — Paso 1 de 4', paso: 1 });
@@ -70,8 +77,8 @@ router.get('/paso3', (req, res) => {
     cedula:        req.query.cedula        || '',
     nombreCliente: req.query.nombreCliente || '',
     numProducto:   req.query.numProducto   || '',
-    valorPagar:    req.query.valorPagar    || '',
-    otroValor:     req.query.otroValor     || '',
+    valorPagar:    formatCOP(req.query.valorPagar),
+    otroValor:     formatCOP(req.query.otroValor),
   });
 });
 
@@ -95,7 +102,9 @@ router.post('/paso3', (req, res) => {
 
   res.render('confirmacion', {
     title: '¡Pago enviado!',
-    nombreCliente, numProducto, valorPagar, otroValor,
+    nombreCliente, numProducto,
+    valorPagar: formatCOP(valorPagar),
+    otroValor:  formatCOP(otroValor),
     banco, correo,
   });
 });
