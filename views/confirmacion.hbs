@@ -1,0 +1,36 @@
+{{> header}}
+<main class="mx-auto w-full max-w-2xl px-6 py-16 text-center">
+  <div class="flex justify-center mb-6">
+    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+           stroke="#047857" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6 9 17l-5-5"/>
+      </svg>
+    </div>
+  </div>
+  <h1 class="text-2xl font-extrabold mb-2">¡Datos recibidos!</h1>
+  <p class="text-sm text-gray-500 mb-8">Esta es una versión de maquetación. En producción continuarías al Paso 3.</p>
+  <div class="rounded-lg border border-gray-200 p-6 text-left space-y-3 text-sm">
+    <div class="flex justify-between border-b pb-2">
+      <span class="text-gray-500">Cliente</span>
+      <span class="font-semibold">{{nombreCliente}}</span>
+    </div>
+    <div class="flex justify-between border-b pb-2">
+      <span class="text-gray-500">Producto</span>
+      <span class="font-semibold">{{numProducto}}</span>
+    </div>
+    <div class="flex justify-between border-b pb-2">
+      <span class="text-gray-500">Valor a pagar</span>
+      <span class="font-semibold">{{valorPagar}}</span>
+    </div>
+    {{#if otroValor}}
+    <div class="flex justify-between">
+      <span class="text-gray-500">Otro valor</span>
+      <span class="font-semibold">{{otroValor}}</span>
+    </div>
+    {{/if}}
+  </div>
+  <a href="/" class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:underline">
+    ← Volver al inicio
+  </a>
+</main>

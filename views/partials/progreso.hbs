@@ -1,0 +1,9 @@
+<div class="text-center">
+  <p class="mb-3 text-sm font-semibold">Datos (Paso {{paso}} de 4)</p>
+  <div class="flex gap-2">
+    <div class="h-1.5 flex-1 rounded-full bg-red-600"></div>
+    {{#if paso2activo}}<div class="h-1.5 flex-1 rounded-full bg-red-600"></div>{{else}}<div class="h-1.5 flex-1 rounded-full bg-gray-200"></div>{{/if}}
+    {{#if paso3activo}}<div class="h-1.5 flex-1 rounded-full bg-red-600"></div>{{else}}<div class="h-1.5 flex-1 rounded-full bg-gray-200"></div>{{/if}}
+    <div class="h-1.5 flex-1 rounded-full bg-gray-200"></div>
+  </div>
+</div>
