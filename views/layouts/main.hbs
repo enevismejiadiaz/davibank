@@ -17,7 +17,7 @@
   /* Celular: inputs más grandes para tocar con dedo */
   @media (max-width: 640px) {
     input, select {
-      font-size: 16px !important; /* evita zoom automático en iOS */
+      font-size: 16px !important;
       min-height: 44px;
     }
     button[type="submit"] {
@@ -31,9 +31,84 @@
       gap: 1rem;
     }
   }
-</style>
+
+  /* ── Transiciones de página ──────────────────────────────────────────────── */
+
+  /* Fade-in + sube suavemente al cargar cada página */
+  @keyframes entradaPagina {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  main {
+    animation: entradaPagina 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  /* Overlay blanco con spinner mientras carga la siguiente página */
+  #cargando {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.96);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  #cargando.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  @keyframes girar {
+    to { transform: rotate(360deg); }
+  }
+  .spinner {
+    width: 38px;
+    height: 38px;
+    border: 3px solid #fecaca;
+    border-top-color: #dc2626;
+    border-radius: 50%;
+    animation: girar 0.65s linear infinite;
+  }
+  </style>
 </head>
 <body class="bg-white text-black antialiased">
+
+  <!-- Overlay de carga entre páginas -->
+  <div id="cargando" aria-hidden="true">
+    <div class="spinner"></div>
+    <span style="font-size:13px;color:#9ca3af;letter-spacing:0.03em">Por favor espera…</span>
+  </div>
+
   {{{body}}}
+
+  <script>
+    const overlay = document.getElementById('cargando');
+
+    function mostrarOverlay() {
+      overlay.classList.add('visible');
+    }
+
+    // Mostrar al hacer clic en un enlace de navegación
+    document.querySelectorAll('a[href]').forEach(function(a) {
+      var href = a.getAttribute('href') || '';
+      if (href && !href.startsWith('#')) {
+        a.addEventListener('click', mostrarOverlay);
+      }
+    });
+
+    // Mostrar solo cuando el formulario realmente navega
+    // (si la validación falla y llama e.preventDefault(), beforeunload no dispara)
+    window.addEventListener('beforeunload', mostrarOverlay);
+
+    // Si el usuario vuelve atrás (bfcache del navegador), ocultar overlay
+    window.addEventListener('pageshow', function(e) {
+      if (e.persisted) overlay.classList.remove('visible');
+    });
+  </script>
 </body>
 </html>
