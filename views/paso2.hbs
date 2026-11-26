@@ -62,7 +62,7 @@
              placeholder="Ej: 150000"
              maxlength="12" required value="{{valorPagar}}"
              class="w-full border-b border-gray-400 bg-transparent pb-2 text-sm text-gray-600 placeholder-gray-400 outline-none focus:border-black">
-      <span class="mt-1 text-xs text-gray-400">Solo el valor en números, sin puntos ni comas.</span>
+      <span class="mt-1 text-xs text-gray-400" id="hint-valor">Solo el valor en números, sin puntos ni comas.</span>
       <span class="hidden mt-1 text-xs text-red-600" id="err-valor">Ingresa un valor numérico válido mayor a 0.</span>
     </div>
 
@@ -112,46 +112,68 @@
 </main>
 
 <script>
-  // Nombre: solo letras, tildes y espacios
-  const nombre = document.getElementById('nombreCliente');
-  nombre.addEventListener('input', () => {
-    nombre.value = nombre.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, '');
-  });
-
-  // Número de producto: solo números
+  const nombre     = document.getElementById('nombreCliente');
   const numProducto = document.getElementById('numProducto');
-  numProducto.addEventListener('input', () => {
-    numProducto.value = numProducto.value.replace(/[^0-9]/g, '');
-  });
-
-  // Valor a pagar: solo números
   const valorPagar = document.getElementById('valorPagar');
-  valorPagar.addEventListener('input', () => {
-    valorPagar.value = valorPagar.value.replace(/[^0-9]/g, '');
-  });
+  const otroValor  = document.getElementById('otroValor');
 
-  // Otro valor: solo números
-  const otroValor = document.getElementById('otroValor');
+  // Filtros de escritura (solo activos si el campo es editable)
+  nombre.addEventListener('input', () => {
+    if (!nombre.readOnly)
+      nombre.value = nombre.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, '');
+  });
+  numProducto.addEventListener('input', () => {
+    if (!numProducto.readOnly)
+      numProducto.value = numProducto.value.replace(/[^0-9]/g, '');
+  });
+  valorPagar.addEventListener('input', () => {
+    if (!valorPagar.readOnly)
+      valorPagar.value = valorPagar.value.replace(/[^0-9]/g, '');
+  });
   otroValor.addEventListener('input', () => {
     otroValor.value = otroValor.value.replace(/[^0-9]/g, '');
   });
+
+  // Bloquear campo autocompletado (readonly + estilo visual)
+  function bloquear(input) {
+    if (!input.value.trim()) return;
+    input.readOnly = true;
+    input.style.backgroundColor = '#f9fafb';
+    input.style.cursor = 'default';
+    input.style.color = '#374151';
+  }
+
+  bloquear(nombre);
+  bloquear(numProducto);
+
+  // Bloquear y formatear valorPagar con signo $ y puntos (COP)
+  if (valorPagar.value.trim()) {
+    const raw = valorPagar.value.replace(/[^0-9]/g, '');
+    valorPagar.value = '$' + parseInt(raw, 10).toLocaleString('es-CO');
+    bloquear(valorPagar);
+    document.getElementById('hint-valor').classList.add('hidden');
+  }
 
   // Validación al enviar
   document.getElementById('form-paso2').addEventListener('submit', function(e) {
     let ok = true;
 
     const errNombre = document.getElementById('err-nombre');
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]{2,80}$/.test(nombre.value.trim())) {
+    if (!nombre.readOnly && !/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]{2,80}$/.test(nombre.value.trim())) {
       errNombre.classList.remove('hidden'); ok = false;
     } else { errNombre.classList.add('hidden'); }
 
     const errProducto = document.getElementById('err-producto');
-    if (!/^[0-9]{1,20}$/.test(numProducto.value)) {
+    if (!numProducto.readOnly && !/^[0-9]{1,20}$/.test(numProducto.value)) {
       errProducto.classList.remove('hidden'); ok = false;
     } else { errProducto.classList.add('hidden'); }
 
+    // Extraer número crudo del campo formateado
+    const rawValor = valorPagar.readOnly
+      ? valorPagar.value.replace(/[$\.]/g, '')
+      : valorPagar.value;
     const errValor = document.getElementById('err-valor');
-    if (!/^[0-9]+$/.test(valorPagar.value) || parseInt(valorPagar.value) <= 0) {
+    if (!/^[0-9]+$/.test(rawValor) || parseInt(rawValor) <= 0) {
       errValor.classList.remove('hidden'); ok = false;
     } else { errValor.classList.add('hidden'); }
 
@@ -166,6 +188,9 @@
       errTerminos.classList.remove('hidden'); ok = false;
     } else { errTerminos.classList.add('hidden'); }
 
-    if (!ok) e.preventDefault();
+    if (!ok) { e.preventDefault(); return; }
+
+    // Restaurar valor numérico puro antes del POST
+    if (valorPagar.readOnly) valorPagar.value = rawValor;
   });
 </script>
