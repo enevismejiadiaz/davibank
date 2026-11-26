@@ -2,6 +2,7 @@
 
 const express = require('express');
 const router  = express.Router();
+const { buscarPorCedula } = require('../data/loader');
 
 // GET / → Paso 1
 router.get('/', (req, res) => {
@@ -23,11 +24,17 @@ router.post('/paso1', (req, res) => {
 
 // GET /paso2
 router.get('/paso2', (req, res) => {
+  const cedula = req.query.cedula || '';
+  const cliente = buscarPorCedula(cedula);
+
   res.render('paso2', {
     title: 'Portal de pago — Paso 2 de 4',
     paso: 2,
     paso2activo: true,
-    cedula: req.query.cedula || '',
+    cedula,
+    nombreCliente: cliente ? String(cliente['NOMBRE'] || '').trim() : '',
+    numProducto:   cliente ? String(cliente['OBLIGACION'] || '').trim() : '',
+    valorPagar:    cliente ? String(Math.round(Number(cliente['SALDO TOTAL']) || 0)) : '',
   });
 });
 
